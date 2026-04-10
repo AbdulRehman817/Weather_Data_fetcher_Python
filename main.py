@@ -8,23 +8,25 @@ def home():
     weather = None
 
     if request.method == "POST":
-        city = request.form["city"]
+        try:
+            city = request.form["city"]
 
-        # Get city location
-        geo = requests.get(
-            f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1"
-        ).json()
-
-        if "results" in geo:
-            lat = geo["results"][0]["latitude"]
-            lon = geo["results"][0]["longitude"]
-
-            # Get weather
-            data = requests.get(
-                f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m"
+            geo = requests.get(
+                f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1"
             ).json()
 
-            weather = data["current"]
+            if "results" in geo:
+                lat = geo["results"][0]["latitude"]
+                lon = geo["results"][0]["longitude"]
+
+                data = requests.get(
+                    f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m"
+                ).json()
+
+                weather = data["current"]
+
+        except:
+            weather = None
 
     return render_template("index.html", weather=weather)
 
